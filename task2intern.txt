@@ -1,0 +1,161 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class FoodItem {
+    private String name;
+    private double price;
+
+    public FoodItem(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+}
+
+class Order {
+    private List<FoodItem> items;
+
+    public Order() {
+        items = new ArrayList<>();
+    }
+
+    public void addItem(FoodItem item) {
+        items.add(item);
+    }
+
+    public void removeItem(FoodItem item) {
+        items.remove(item);
+    }
+
+    public double getTotal() {
+        double total = 0;
+        for (FoodItem item : items) {
+            total += item.getPrice();
+        }
+        return total;
+    }
+
+    public void displayOrder() {
+        System.out.println("Order Details:");
+        for (FoodItem item : items) {
+            System.out.println(item.getName() + " - $" + item.getPrice());
+        }
+        System.out.println("Total: $" + getTotal());
+    }
+}
+
+class FoodApp {
+    private List<FoodItem> menu;
+    private Order currentOrder;
+
+    public FoodApp() {
+        menu = new ArrayList<>();
+        currentOrder = new Order();
+    }
+
+    public void addFoodItem(FoodItem item) {
+        menu.add(item);
+    }
+
+    public void displayMenu() {
+        System.out.println("Menu:");
+        for (FoodItem item : menu) {
+            System.out.println(item.getName() + " - $" + item.getPrice());
+        }
+    }
+
+    public void startOrder() {
+        currentOrder = new Order();
+    }
+
+    public void addToOrder(FoodItem item) {
+        currentOrder.addItem(item);
+    }
+
+    public void removeFromOrder(FoodItem item) {
+        currentOrder.removeItem(item);
+    }
+
+    public void checkoutOrder() {
+        currentOrder.displayOrder();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        FoodApp app = new FoodApp();
+        FoodItem item1 = new FoodItem("Burger", 8.99);
+        FoodItem item2 = new FoodItem("Pizza", 12.99);
+        FoodItem item3 = new FoodItem("Salad", 6.99);
+        app.addFoodItem(item1);
+        app.addFoodItem(item2);
+        app.addFoodItem(item3);
+
+        Scanner scanner = new Scanner(System.in);
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("1. Display Menu");
+            System.out.println("2. Start New Order");
+            System.out.println("3. Add Item to Order");
+            System.out.println("4. Remove Item from Order");
+            System.out.println("5. Checkout");
+            System.out.println("6. Exit");
+
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    app.displayMenu();
+                    break;
+                case 2:
+                    app.startOrder();
+                    System.out.println("New order started.");
+                    break;
+                case 3:
+                    app.displayMenu();
+                    System.out.print("Enter item name to add: ");
+                    String addItem = scanner.next();
+                    for (FoodItem item : app.menu) {
+                        if (item.getName().equalsIgnoreCase(addItem)) {
+                            app.addToOrder(item);
+                            System.out.println(item.getName() + " added to order.");
+                            break;
+                        }
+                    }
+                    break;
+                case 4:
+                    app.currentOrder.displayOrder();
+                    System.out.print("Enter item name to remove: ");
+                    String removeItem = scanner.next();
+                    for (FoodItem item : app.currentOrder.getItems()) {
+                        if (item.getName().equalsIgnoreCase(removeItem)) {
+                            app.removeFromOrder(item);
+                            System.out.println(item.getName() + " removed from order.");
+                            break;
+                        }
+                    }
+                    break;
+                case 5:
+                    app.checkoutOrder();
+                    break;
+                case 6:
+                    exit = true;
+                    System.out.println("Exiting the application. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+        scanner.close();
+    }
+}
