@@ -1,0 +1,162 @@
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Message {
+    private String sender;
+    private String content;
+
+    public Message(String sender, String content) {
+        this.sender = sender;
+        this.content = content;
+    }
+
+    public String getSender() {
+        return sender;
+    }
+
+    public String getContent() {
+        return content;
+    }
+}
+
+class Chat {
+    private List<Message> messages;
+
+    public Chat() {
+        messages = new ArrayList<>();
+    }
+
+    public void addMessage(Message message) {
+        messages.add(message);
+    }
+
+    public List<Message> getMessages() {
+        return messages;
+    }
+}
+
+class User {
+    private String username;
+    private List<Chat> chats;
+
+    public User(String username) {
+        this.username = username;
+        chats = new ArrayList<>();
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void createChat(User recipient) {
+        Chat chat = new Chat();
+        chats.add(chat);
+        recipient.getChats().add(chat);
+    }
+
+    public void sendMessage(User recipient, String content) {
+        Chat chat = findChatWithUser(recipient);
+        if (chat != null) {
+            Message message = new Message(username, content);
+            chat.addMessage(message);
+            recipient.getChats().get(recipient.findChatIndexWithUser(this)).addMessage(message);
+        }
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    private Chat findChatWithUser(User user) {
+        for (Chat chat : chats) {
+            for (Message message : chat.getMessages()) {
+                if (message.getSender().equals(user.getUsername())) {
+                    return chat;
+                }
+            }
+        }
+        return null;
+    }
+
+    private int findChatIndexWithUser(User user) {
+        for (int i = 0; i < chats.size(); i++) {
+            Chat chat = chats.get(i);
+            for (Message message : chat.getMessages()) {
+                if (message.getSender().equals(user.getUsername())) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.print("Enter username for User 1: ");
+        String username1 = scanner.nextLine();
+        User user1 = new User(username1);
+
+        System.out.print("Enter username for User 2: ");
+        String username2 = scanner.nextLine();
+        User user2 = new User(username2);
+
+        user1.createChat(user2);
+
+        boolean exit = false;
+
+        while (!exit) {
+            System.out.println("1. Send Message");
+            System.out.println("2. View Messages");
+            System.out.println("3. Exit");
+
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline character
+
+            switch (choice) {
+                case 1:
+                    System.out.print("Enter sender username: ");
+                    String sender = scanner.nextLine();
+                    User senderUser = sender.equals(user1.getUsername()) ? user1 : user2;
+
+                    System.out.print("Enter recipient username: ");
+                    String recipient = scanner.nextLine();
+                    User recipientUser = recipient.equals(user1.getUsername()) ? user1 : user2;
+
+                    System.out.print("Enter message content: ");
+                    String content = scanner.nextLine();
+
+                    senderUser.sendMessage(recipientUser, content);
+                    System.out.println("Message sent!");
+                    break;
+                case 2:
+                    System.out.print("Enter username to view messages: ");
+                    String username = scanner.nextLine();
+                    User user = username.equals(user1.getUsername()) ? user1 : user2;
+
+                    List<Chat> chats = user.getChats();
+                    for (Chat chat : chats) {
+                        System.out.println("Chat with " + (chat.getMessages().get(0).getSender().equals(user.getUsername()) ?
+                                chat.getMessages().get(0).getSender() : chat.getMessages().get(0).getSender()) + ":");
+
+                        List<Message> messages = chat.getMessages();
+                        for (Message message : messages) {
+                            System.out.println(message.getSender() + ": " + message.getContent());
+                        }
+                    }
+                    break;
+                case 3:
+                    exit = true;
+                    System.out.println("Exiting the application. Goodbye!");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        }
+        scanner.close();
+    }
+}
